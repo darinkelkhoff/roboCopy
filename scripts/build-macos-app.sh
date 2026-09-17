@@ -9,6 +9,33 @@ STAGING_CONTENTS="$STAGING_APP/Contents"
 ICON_WORK="$REPO_ROOT/.build/robocopy-icons"
 ICONSET="$ICON_WORK/RoboCopy.iconset"
 MASTER="$ICON_WORK/AppIcon-1024.png"
+AVAILABLE_IDENTITIES="$(security find-identity -v -p codesigning)"
+
+if [[ -n "${ROBOCOPY_SIGNING_IDENTITY:-}" ]]; then
+    SIGNING_IDENTITY="$ROBOCOPY_SIGNING_IDENTITY"
+    if [[ "$SIGNING_IDENTITY" != "-" ]] && \
+        ! grep -Fq "\"$SIGNING_IDENTITY\"" <<<"$AVAILABLE_IDENTITIES"; then
+        echo "Code-signing identity is not available: $SIGNING_IDENTITY" >&2
+        exit 1
+    fi
+else
+    DEVELOPMENT_IDENTITIES="$(
+        sed -n 's/.*"\(Apple Development:[^"]*\)".*/\1/p' <<<"$AVAILABLE_IDENTITIES"
+    )"
+    IDENTITY_COUNT="$(awk 'NF { count++ } END { print count + 0 }' <<<"$DEVELOPMENT_IDENTITIES")"
+
+    if [[ "$IDENTITY_COUNT" -eq 1 ]]; then
+        SIGNING_IDENTITY="$DEVELOPMENT_IDENTITIES"
+    elif [[ "$IDENTITY_COUNT" -eq 0 ]]; then
+        SIGNING_IDENTITY="-"
+        echo "Warning: no Apple Development identity found; using ad-hoc signing." >&2
+    else
+        echo "Multiple Apple Development identities found:" >&2
+        printf '%s\n' "$DEVELOPMENT_IDENTITIES" >&2
+        echo "Set ROBOCOPY_SIGNING_IDENTITY to the identity to use." >&2
+        exit 1
+    fi
+fi
 
 cleanup() {
     local status=$?
@@ -80,7 +107,8 @@ swift scripts/render-svg.swift \
     36
 
 plutil -lint "$STAGING_CONTENTS/Info.plist"
-codesign --force --sign - "$STAGING_APP"
+echo "Signing RoboCopy with: $SIGNING_IDENTITY"
+codesign --force --sign "$SIGNING_IDENTITY" "$STAGING_APP"
 codesign --verify --deep --strict --verbose=2 "$STAGING_APP"
 
 if [[ -e "$APP" ]]; then

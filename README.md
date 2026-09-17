@@ -1,6 +1,6 @@
 # RoboCopy
 
-RoboCopy adds iTerm-style mouse copy-on-select behavior to explicitly allowed macOS applications.
+RoboCopy adds iTerm-style copy-on-mouse-select behavior to explicitly allowed macOS applications.
 
 ## Requirements
 
@@ -17,7 +17,15 @@ The app is written to `dist/RoboCopy.app`. Move it to `/Applications` before ena
 
 The build generates the macOS application icon and adaptive menu-bar template image from the committed SVG sources using AppKit, `sips`, and `iconutil`.
 
-The build uses an ad-hoc signature for local use. It is not signed with a Developer ID or notarized for distribution.
+When exactly one Apple Development identity is installed, the build selects it automatically. This stable identity allows macOS to recognize rebuilt versions as the same app for privacy permissions such as Accessibility. If no development identity is available, the build uses ad-hoc signing and prints a warning. If multiple identities are available, select one explicitly:
+
+Override the signing identity when needed:
+
+```bash
+ROBOCOPY_SIGNING_IDENTITY="Apple Development: Your Name (TEAMID)" scripts/build-macos-app.sh
+```
+
+Set `ROBOCOPY_SIGNING_IDENTITY=-` when an explicit ad-hoc build is desired. Developer ID identities may also be selected explicitly, but this local script does not notarize the result.
 
 ## Use
 

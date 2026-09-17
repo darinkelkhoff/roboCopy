@@ -32,6 +32,8 @@ RoboCopy runs as a menu-bar-only application with no Dock icon and no persistent
 
 The user-provided `roboCopy.svg` is the canonical visual asset. The release build generates a full macOS `.icns` file from that source for the application bundle. The menu bar uses a separate monochrome, transparent template derivative so macOS can adapt it to light and dark menu bars. This derivative contains two identical faces with 50 percent horizontal overlap; the left face sits about two rendered pixels lower than the right in the 23-by-18-point image. Each face preserves the source artwork's outlined round head, solid upper dome, curved transparent visor, white lower face, and small curved mouth; the visor sits high enough in the dome to remain distinct from the horizontal face division at native scale. Generated raster sizes and `.icns` output are build artifacts; only the source SVG assets are committed.
 
+Local release builds automatically use the sole installed Apple Development identity. This gives rebuilt versions a stable designated requirement so macOS can preserve privacy permissions. An environment override selects a specific identity when multiple identities exist. When no development identity is available, the build warns and falls back to ad-hoc signing.
+
 The menu contains:
 
 - A global enabled toggle.
