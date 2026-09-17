@@ -60,6 +60,10 @@ public struct SelectionGestureRecognizer {
     private var state: State?
 
     public init(dragThreshold: CGFloat = 4) {
+        precondition(
+            dragThreshold.isFinite && dragThreshold >= 0,
+            "dragThreshold must be finite and nonnegative"
+        )
         self.dragThreshold = dragThreshold
     }
 
@@ -84,6 +88,12 @@ public struct SelectionGestureRecognizer {
             return nil
 
         case let .dragged(point, _):
+            guard let initialTarget = state?.initialTarget,
+                  target?.bundleIdentifier == initialTarget.bundleIdentifier else {
+                state = nil
+                return nil
+            }
+
             updateFarthestDistance(to: point)
             return nil
 

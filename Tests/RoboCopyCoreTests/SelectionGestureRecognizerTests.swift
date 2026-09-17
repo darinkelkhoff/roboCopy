@@ -95,4 +95,47 @@ final class SelectionGestureRecognizerTests: XCTestCase {
             )
         ))
     }
+
+    func testGestureStaysCanceledAfterDraggedTargetBundleIdentifierDiffers() {
+        var recognizer = SelectionGestureRecognizer()
+        let otherTarget = AppIdentity(
+            bundleIdentifier: "com.example.other",
+            displayName: "Other"
+        )
+
+        XCTAssertNil(recognizer.consume(
+            .down(at: .zero, clickCount: 1, modifiers: 0),
+            target: target
+        ))
+        XCTAssertNil(recognizer.consume(
+            .dragged(to: CGPoint(x: 5, y: 0), modifiers: 0),
+            target: otherTarget
+        ))
+
+        XCTAssertNil(recognizer.consume(
+            .up(at: CGPoint(x: 5, y: 0), clickCount: 1, modifiers: 0),
+            target: target
+        ))
+    }
+
+    func testDragUsesFarthestDistanceWhenMouseReturnsNearOrigin() {
+        var recognizer = SelectionGestureRecognizer()
+
+        XCTAssertNil(recognizer.consume(
+            .down(at: .zero, clickCount: 1, modifiers: 0),
+            target: target
+        ))
+        XCTAssertNil(recognizer.consume(
+            .dragged(to: CGPoint(x: 5, y: 0), modifiers: 0),
+            target: target
+        ))
+
+        XCTAssertEqual(
+            recognizer.consume(
+                .up(at: CGPoint(x: 1, y: 0), clickCount: 1, modifiers: 0),
+                target: target
+            ),
+            SelectionGesture(target: target, kind: .drag, modifiers: 0)
+        )
+    }
 }
