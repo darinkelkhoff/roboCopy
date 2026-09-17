@@ -8,13 +8,13 @@ final class FrontmostApplicationTracker {
     private(set) var unsupportedApplicationName: String?
 
     private let ownProcessIdentifier = ProcessInfo.processInfo.processIdentifier
-    private let notificationCenter: NotificationCenter
+    private let workspace: NSWorkspace
     private var observer: NSObjectProtocol?
 
     init(workspace: NSWorkspace = .shared) {
-        notificationCenter = workspace.notificationCenter
+        self.workspace = workspace
         update(from: workspace.frontmostApplication)
-        observer = notificationCenter.addObserver(
+        observer = workspace.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
             queue: .main
@@ -28,12 +28,12 @@ final class FrontmostApplicationTracker {
 
     deinit {
         if let observer {
-            notificationCenter.removeObserver(observer)
+            workspace.notificationCenter.removeObserver(observer)
         }
     }
 
     var frontmostApplication: AppIdentity? {
-        identity(for: NSWorkspace.shared.frontmostApplication)
+        identity(for: workspace.frontmostApplication)
     }
 
     private func update(from application: NSRunningApplication?) {
@@ -107,10 +107,11 @@ final class GlobalMouseMonitor {
     private var token: Any?
 
     func start(handler: @escaping (MouseSample) -> Void) {
+        stop()
         token = NSEvent.addGlobalMonitorForEvents(
             matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]
         ) { event in
-            let point = NSEvent.mouseLocation
+            let point = event.locationInWindow
             let modifiers = event.modifierFlags.rawValue
 
             switch event.type {
@@ -126,9 +127,13 @@ final class GlobalMouseMonitor {
         }
     }
 
+    func stop() {
+        guard let token else { return }
+        NSEvent.removeMonitor(token)
+        self.token = nil
+    }
+
     deinit {
-        if let token {
-            NSEvent.removeMonitor(token)
-        }
+        stop()
     }
 }
