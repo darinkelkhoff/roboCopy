@@ -5,14 +5,14 @@ public final class CopyDispatcher {
 
     private let isEnabled: () -> Bool
     private let isTrusted: () -> Bool
-    private let frontmost: () -> AppIdentity?
+    private let frontmost: () -> ApplicationTarget?
     private let schedule: Scheduler
     private let postCommandC: () -> Void
 
     public init(
         isEnabled: @escaping () -> Bool,
         isTrusted: @escaping () -> Bool,
-        frontmost: @escaping () -> AppIdentity?,
+        frontmost: @escaping () -> ApplicationTarget?,
         schedule: @escaping Scheduler,
         postCommandC: @escaping () -> Void
     ) {
@@ -23,10 +23,10 @@ public final class CopyDispatcher {
         self.postCommandC = postCommandC
     }
 
-    public func dispatch(to target: AppIdentity) {
+    public func dispatch(to target: ApplicationTarget) {
         schedule(0.04) { [isEnabled, isTrusted, frontmost, postCommandC] in
             guard isEnabled(), isTrusted() else { return }
-            guard frontmost()?.bundleIdentifier == target.bundleIdentifier else { return }
+            guard frontmost() == target else { return }
 
             postCommandC()
         }

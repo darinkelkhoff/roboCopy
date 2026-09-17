@@ -36,11 +36,11 @@ public struct SelectionGesture: Equatable {
         case multiClick
     }
 
-    public let target: AppIdentity
+    public let target: ApplicationTarget
     public let kind: Kind
     public let modifiers: UInt
 
-    public init(target: AppIdentity, kind: Kind, modifiers: UInt) {
+    public init(target: ApplicationTarget, kind: Kind, modifiers: UInt) {
         self.target = target
         self.kind = kind
         self.modifiers = modifiers
@@ -52,7 +52,7 @@ public struct SelectionGestureRecognizer {
         let origin: CGPoint
         let initialClickCount: Int
         let initialModifiers: UInt
-        let initialTarget: AppIdentity
+        let initialTarget: ApplicationTarget
         var farthestDistance: CGFloat
     }
 
@@ -69,7 +69,7 @@ public struct SelectionGestureRecognizer {
 
     public mutating func consume(
         _ sample: MouseSample,
-        target: AppIdentity?
+        target: ApplicationTarget?
     ) -> SelectionGesture? {
         switch sample {
         case let .down(origin, clickCount, modifiers):
@@ -89,7 +89,7 @@ public struct SelectionGestureRecognizer {
 
         case let .dragged(point, _):
             guard let initialTarget = state?.initialTarget,
-                  target?.bundleIdentifier == initialTarget.bundleIdentifier else {
+                  target == initialTarget else {
                 state = nil
                 return nil
             }
@@ -101,7 +101,7 @@ public struct SelectionGestureRecognizer {
             guard var completedState = state else { return nil }
             state = nil
 
-            guard target?.bundleIdentifier == completedState.initialTarget.bundleIdentifier else {
+            guard target == completedState.initialTarget else {
                 return nil
             }
 

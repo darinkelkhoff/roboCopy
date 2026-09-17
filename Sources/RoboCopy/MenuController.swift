@@ -9,20 +9,24 @@ final class MenuController: NSObject, NSMenuDelegate {
     private let tracker: FrontmostApplicationTracker
     private let accessibility: AccessibilityController
     private let launchAtLogin: LaunchAtLoginController
+    private let retryMouseMonitoring: () -> Bool
     private var launchAtLoginError: String?
+    private var mouseMonitoringAvailable = true
 
     init(
         defaults: UserDefaults,
         allowlist: AllowlistStore,
         tracker: FrontmostApplicationTracker,
         accessibility: AccessibilityController,
-        launchAtLogin: LaunchAtLoginController
+        launchAtLogin: LaunchAtLoginController,
+        retryMouseMonitoring: @escaping () -> Bool
     ) {
         self.defaults = defaults
         self.allowlist = allowlist
         self.tracker = tracker
         self.accessibility = accessibility
         self.launchAtLogin = launchAtLogin
+        self.retryMouseMonitoring = retryMouseMonitoring
         super.init()
 
         statusItem.button?.image = Self.statusImage()
@@ -54,9 +58,28 @@ final class MenuController: NSObject, NSMenuDelegate {
         set { defaults.set(newValue, forKey: "isEnabled") }
     }
 
+    func setMouseMonitoringAvailable(_ available: Bool) {
+        mouseMonitoringAvailable = available
+    }
+
     func menuWillOpen(_ menu: NSMenu) {
         menu.removeAllItems()
         menu.addItem(item("Enabled", action: #selector(toggleEnabled), state: isEnabled))
+        if !mouseMonitoringAvailable {
+            let unavailable = NSMenuItem(
+                title: "Mouse Monitoring Unavailable",
+                action: nil,
+                keyEquivalent: ""
+            )
+            unavailable.isEnabled = false
+            menu.addItem(unavailable)
+            menu.addItem(
+                item(
+                    "Retry Mouse Monitoring",
+                    action: #selector(retryMouseMonitor)
+                )
+            )
+        }
         menu.addItem(.separator())
 
         if let app = tracker.lastExternalApplication {
@@ -183,6 +206,10 @@ final class MenuController: NSObject, NSMenuDelegate {
     @objc private func openAccessibilitySettings() {
         accessibility.requestAccess()
         accessibility.openSettings()
+    }
+
+    @objc private func retryMouseMonitor() {
+        mouseMonitoringAvailable = retryMouseMonitoring()
     }
 
     @objc private func toggleLaunchAtLogin() {

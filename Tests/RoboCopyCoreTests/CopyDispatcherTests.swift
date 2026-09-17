@@ -3,12 +3,16 @@ import XCTest
 @testable import RoboCopyCore
 
 final class CopyDispatcherTests: XCTestCase {
-    private let target = AppIdentity(
-        bundleIdentifier: "com.example.editor",
-        displayName: "Editor"
+    private let target = ApplicationTarget(
+        application: AppIdentity(
+            bundleIdentifier: "com.example.editor",
+            displayName: "Editor"
+        ),
+        processIdentifier: 101,
+        activationGeneration: 7
     )
 
-    func testDispatchSchedulesOnceAndPostsAfterRevalidatingMatchingBundleIdentifier() {
+    func testDispatchPostsWhenOnlyDisplayNameChangesAfterScheduling() {
         var scheduledDelays: [TimeInterval] = []
         var scheduledAction: (() -> Void)?
         var enabledValidationCount = 0
@@ -26,9 +30,13 @@ final class CopyDispatcherTests: XCTestCase {
             },
             frontmost: {
                 frontmostValidationCount += 1
-                return AppIdentity(
-                    bundleIdentifier: self.target.bundleIdentifier,
-                    displayName: "Renamed Editor"
+                return ApplicationTarget(
+                    application: AppIdentity(
+                        bundleIdentifier: self.target.application.bundleIdentifier,
+                        displayName: "Renamed Editor"
+                    ),
+                    processIdentifier: self.target.processIdentifier,
+                    activationGeneration: self.target.activationGeneration
                 )
             },
             schedule: { delay, action in
@@ -59,13 +67,15 @@ final class CopyDispatcherTests: XCTestCase {
             case disabled
             case untrusted
             case differentBundleIdentifier
+            case differentProcessIdentifier
+            case differentActivationGeneration
             case noFrontmostApplication
         }
 
         for scenario in RevalidationFailure.allCases {
             var isEnabled = true
             var isTrusted = true
-            var frontmost: AppIdentity? = target
+            var frontmost: ApplicationTarget? = target
             var scheduledAction: (() -> Void)?
             var enabledValidationCount = 0
             var trustValidationCount = 0
@@ -100,9 +110,25 @@ final class CopyDispatcherTests: XCTestCase {
             case .untrusted:
                 isTrusted = false
             case .differentBundleIdentifier:
-                frontmost = AppIdentity(
-                    bundleIdentifier: "com.example.other",
-                    displayName: "Editor"
+                frontmost = ApplicationTarget(
+                    application: AppIdentity(
+                        bundleIdentifier: "com.example.other",
+                        displayName: "Editor"
+                    ),
+                    processIdentifier: target.processIdentifier,
+                    activationGeneration: target.activationGeneration
+                )
+            case .differentProcessIdentifier:
+                frontmost = ApplicationTarget(
+                    application: target.application,
+                    processIdentifier: target.processIdentifier + 1,
+                    activationGeneration: target.activationGeneration
+                )
+            case .differentActivationGeneration:
+                frontmost = ApplicationTarget(
+                    application: target.application,
+                    processIdentifier: target.processIdentifier,
+                    activationGeneration: target.activationGeneration + 1
                 )
             case .noFrontmostApplication:
                 frontmost = nil

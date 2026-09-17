@@ -10,6 +10,7 @@ final class FrontmostApplicationTracker {
     private let ownProcessIdentifier = ProcessInfo.processInfo.processIdentifier
     private let workspace: NSWorkspace
     private var observer: NSObjectProtocol?
+    private var activationGeneration: UInt64 = 0
 
     init(workspace: NSWorkspace = .shared) {
         self.workspace = workspace
@@ -19,7 +20,9 @@ final class FrontmostApplicationTracker {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            self?.update(
+            guard let self else { return }
+            self.activationGeneration &+= 1
+            self.update(
                 from: notification.userInfo?[NSWorkspace.applicationUserInfoKey]
                     as? NSRunningApplication
             )
@@ -32,8 +35,8 @@ final class FrontmostApplicationTracker {
         }
     }
 
-    var frontmostApplication: AppIdentity? {
-        identity(for: workspace.frontmostApplication)
+    var frontmostApplication: ApplicationTarget? {
+        target(for: workspace.frontmostApplication)
     }
 
     private func update(from application: NSRunningApplication?) {
@@ -57,6 +60,16 @@ final class FrontmostApplicationTracker {
         return AppIdentity(
             bundleIdentifier: bundleIdentifier,
             displayName: application.localizedName ?? bundleIdentifier
+        )
+    }
+
+    private func target(for application: NSRunningApplication?) -> ApplicationTarget? {
+        guard let application, let identity = identity(for: application) else { return nil }
+
+        return ApplicationTarget(
+            application: identity,
+            processIdentifier: application.processIdentifier,
+            activationGeneration: activationGeneration
         )
     }
 }
@@ -106,7 +119,7 @@ final class CommandCPoster {
 final class GlobalMouseMonitor {
     private var token: Any?
 
-    func start(handler: @escaping (MouseSample) -> Void) {
+    func start(handler: @escaping (MouseSample) -> Void) -> Bool {
         stop()
         token = NSEvent.addGlobalMonitorForEvents(
             matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]
@@ -125,6 +138,7 @@ final class GlobalMouseMonitor {
                 break
             }
         }
+        return token != nil
     }
 
     func stop() {

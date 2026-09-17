@@ -3,16 +3,20 @@ import XCTest
 @testable import RoboCopyCore
 
 final class AutoCopyCoordinatorTests: XCTestCase {
-    private let target = AppIdentity(
-        bundleIdentifier: "com.example.editor",
-        displayName: "Editor"
+    private let target = ApplicationTarget(
+        application: AppIdentity(
+            bundleIdentifier: "com.example.editor",
+            displayName: "Editor"
+        ),
+        processIdentifier: 101,
+        activationGeneration: 7
     )
 
     func testQualifyingDragInAllowedAppWhileEnabledDispatchesTargetOnce() {
-        var dispatchedTargets: [AppIdentity] = []
+        var dispatchedTargets: [ApplicationTarget] = []
         let coordinator = AutoCopyCoordinator(
             isEnabled: { true },
-            isAllowed: { $0 == self.target },
+            isAllowed: { $0.bundleIdentifier == self.target.application.bundleIdentifier },
             dispatchCopy: { dispatchedTargets.append($0) }
         )
 
@@ -28,7 +32,7 @@ final class AutoCopyCoordinatorTests: XCTestCase {
         ]
 
         for scenario in scenarios {
-            var dispatchedTargets: [AppIdentity] = []
+            var dispatchedTargets: [ApplicationTarget] = []
             let coordinator = AutoCopyCoordinator(
                 isEnabled: { scenario.isEnabled },
                 isAllowed: { _ in scenario.isAllowed },

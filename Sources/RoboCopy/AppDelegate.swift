@@ -20,7 +20,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             allowlist: allowlist,
             tracker: tracker,
             accessibility: accessibility,
-            launchAtLogin: launchAtLogin
+            launchAtLogin: launchAtLogin,
+            retryMouseMonitoring: { [weak self] in
+                self?.startMouseMonitoring() ?? false
+            }
         )
 
         let dispatcher = CopyDispatcher(
@@ -57,11 +60,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         mouseMonitor = GlobalMouseMonitor()
+        menuController.setMouseMonitoringAvailable(startMouseMonitoring())
+
+        accessibility.requestAccess()
+    }
+
+    private func startMouseMonitoring() -> Bool {
         mouseMonitor.start { [weak self] sample in
             guard let self else { return }
             self.coordinator.handle(sample, frontmost: self.tracker.frontmostApplication)
         }
-
-        accessibility.requestAccess()
     }
 }
