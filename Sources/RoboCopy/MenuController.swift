@@ -9,6 +9,7 @@ final class MenuController: NSObject, NSMenuDelegate {
     private let tracker: FrontmostApplicationTracker
     private let accessibility: AccessibilityController
     private let launchAtLogin: LaunchAtLoginController
+    private var launchAtLoginError: String?
 
     init(
         defaults: UserDefaults,
@@ -44,13 +45,13 @@ final class MenuController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
 
         if let app = tracker.lastExternalApplication {
-            menu.addItem(
-                item(
-                    "Auto-copy in \(app.displayName)",
-                    action: #selector(toggleCurrentApp),
-                    state: allowlist.contains(bundleIdentifier: app.bundleIdentifier)
-                )
+            let currentAppItem = item(
+                "Auto-copy in \(app.displayName)",
+                action: #selector(toggleCurrentApp(_:)),
+                state: allowlist.contains(bundleIdentifier: app.bundleIdentifier)
             )
+            currentAppItem.representedObject = app
+            menu.addItem(currentAppItem)
         } else if let name = tracker.unsupportedApplicationName {
             let unavailable = NSMenuItem(
                 title: "\(name) cannot be added (no bundle ID)",
@@ -114,6 +115,15 @@ final class MenuController: NSObject, NSMenuDelegate {
                 state: launchAtLogin.isEnabled
             )
         )
+        if let launchAtLoginError {
+            let error = NSMenuItem(
+                title: "Launch at Login Error: \(launchAtLoginError)",
+                action: nil,
+                keyEquivalent: ""
+            )
+            error.isEnabled = false
+            menu.addItem(error)
+        }
         if launchAtLogin.status == .requiresApproval {
             menu.addItem(
                 item(
@@ -140,8 +150,8 @@ final class MenuController: NSObject, NSMenuDelegate {
         isEnabled.toggle()
     }
 
-    @objc private func toggleCurrentApp() {
-        guard let app = tracker.lastExternalApplication else { return }
+    @objc private func toggleCurrentApp(_ sender: NSMenuItem) {
+        guard let app = sender.representedObject as? AppIdentity else { return }
 
         if allowlist.contains(bundleIdentifier: app.bundleIdentifier) {
             allowlist.remove(bundleIdentifier: app.bundleIdentifier)
@@ -161,7 +171,12 @@ final class MenuController: NSObject, NSMenuDelegate {
     }
 
     @objc private func toggleLaunchAtLogin() {
-        try? launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
+        launchAtLoginError = nil
+        do {
+            try launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
+        } catch {
+            launchAtLoginError = error.localizedDescription
+        }
     }
 
     @objc private func openLaunchAtLoginSettings() {
