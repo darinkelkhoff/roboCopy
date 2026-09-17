@@ -25,13 +25,26 @@ final class MenuController: NSObject, NSMenuDelegate {
         self.launchAtLogin = launchAtLogin
         super.init()
 
-        statusItem.button?.image = NSImage(
-            systemSymbolName: "doc.on.clipboard",
-            accessibilityDescription: "RoboCopy"
-        )
+        statusItem.button?.image = Self.statusImage()
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
+    }
+
+    private static func statusImage() -> NSImage? {
+        guard let url = Bundle.main.url(
+            forResource: "MenuBarIconTemplate",
+            withExtension: "png"
+        ), let image = NSImage(contentsOf: url) else {
+            return NSImage(
+                systemSymbolName: "doc.on.clipboard",
+                accessibilityDescription: "RoboCopy"
+            )
+        }
+        image.size = NSSize(width: 18, height: 18)
+        image.isTemplate = true
+        image.accessibilityDescription = "RoboCopy"
+        return image
     }
 
     var isEnabled: Bool {

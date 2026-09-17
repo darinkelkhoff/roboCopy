@@ -15,6 +15,8 @@ scripts/build-macos-app.sh
 
 The app is written to `dist/RoboCopy.app`. Move it to `/Applications` before enabling Launch at Login so macOS has a stable bundle location.
 
+The build generates the macOS application icon and adaptive menu-bar template image from the committed SVG sources using AppKit, `sips`, and `iconutil`.
+
 The build uses an ad-hoc signature for local use. It is not signed with a Developer ID or notarized for distribution.
 
 ## Use
