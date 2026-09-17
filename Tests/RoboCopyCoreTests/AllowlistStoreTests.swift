@@ -56,4 +56,17 @@ final class AllowlistStoreTests: XCTestCase {
 
         XCTAssertEqual(store.apps, [])
     }
+
+    func testAppsAreSortedCaseInsensitivelyWithBundleIdentifierTieBreak() {
+        let store = AllowlistStore(defaults: defaults)
+        let zulu = AppIdentity(bundleIdentifier: "com.example.zulu", displayName: "Zulu")
+        let alphaSecond = AppIdentity(bundleIdentifier: "com.example.beta", displayName: "alpha")
+        let alphaFirst = AppIdentity(bundleIdentifier: "com.example.alpha", displayName: "ALPHA")
+
+        store.add(zulu)
+        store.add(alphaSecond)
+        store.add(alphaFirst)
+
+        XCTAssertEqual(store.apps, [alphaFirst, alphaSecond, zulu])
+    }
 }
