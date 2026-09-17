@@ -26,6 +26,8 @@ final class MenuController: NSObject, NSMenuDelegate {
         super.init()
 
         statusItem.button?.image = Self.statusImage()
+        statusItem.button?.setAccessibilityLabel("RoboCopy")
+        statusItem.button?.toolTip = "RoboCopy"
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu

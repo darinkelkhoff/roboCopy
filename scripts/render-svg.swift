@@ -23,7 +23,7 @@ guard let bitmap = NSBitmapImageRep(
     samplesPerPixel: 4,
     hasAlpha: true,
     isPlanar: false,
-    colorSpaceName: .deviceRGB,
+    colorSpaceName: .calibratedRGB,
     bytesPerRow: 0,
     bitsPerPixel: 0
 ) else {
@@ -32,7 +32,12 @@ guard let bitmap = NSBitmapImageRep(
 }
 
 NSGraphicsContext.saveGraphicsState()
-NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
+guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
+    NSGraphicsContext.restoreGraphicsState()
+    fputs("Unable to create graphics context\n", stderr)
+    exit(70)
+}
+NSGraphicsContext.current = context
 NSColor.clear.setFill()
 NSRect(x: 0, y: 0, width: pixels, height: pixels).fill()
 image.draw(
@@ -43,8 +48,17 @@ image.draw(
 )
 NSGraphicsContext.restoreGraphicsState()
 
-guard let png = bitmap.representation(using: .png, properties: [:]) else {
+guard let sRGBBitmap = bitmap.converting(to: .sRGB, renderingIntent: .default) else {
+    fputs("Unable to convert bitmap to sRGB\n", stderr)
+    exit(70)
+}
+guard let png = sRGBBitmap.representation(using: .png, properties: [:]) else {
     fputs("Unable to encode PNG\n", stderr)
     exit(70)
 }
-try png.write(to: URL(fileURLWithPath: output), options: .atomic)
+do {
+    try png.write(to: URL(fileURLWithPath: output), options: .atomic)
+} catch {
+    fputs("Unable to write PNG to \(output): \(error)\n", stderr)
+    exit(74)
+}
