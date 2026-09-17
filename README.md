@@ -5,7 +5,7 @@ RoboCopy adds iTerm-style mouse copy-on-select behavior to explicitly allowed ma
 ## Requirements
 
 - macOS 14 or later
-- Xcode Command Line Tools
+- Xcode 15.3 or later, or equivalent Xcode Command Line Tools
 
 ## Build
 
@@ -14,6 +14,8 @@ scripts/build-macos-app.sh
 ```
 
 The app is written to `dist/RoboCopy.app`. Move it to `/Applications` before enabling Launch at Login so macOS has a stable bundle location.
+
+The build uses an ad-hoc signature for local use. It is not signed with a Developer ID or notarized for distribution.
 
 ## Use
 
@@ -24,7 +26,7 @@ The app is written to `dist/RoboCopy.app`. Move it to `/Applications` before ena
 
 Single clicks and selections in applications outside the allowlist are ignored.
 
-All RoboCopy configuration stays local. RoboCopy does not read or log selected text; the target application handles the Command-C action.
+RoboCopy observes global left-mouse gestures and the active application's identity. It stores only the allowlist and app settings locally. Selected text is never read or logged; the target application handles the Command-C action. RoboCopy has no network behavior.
 
 ## Development
 
