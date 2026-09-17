@@ -30,6 +30,8 @@ Version 1 targets macOS 14 and later.
 
 RoboCopy runs as a menu-bar-only application with no Dock icon and no persistent main window. It remembers the last active application other than RoboCopy so its menu can offer a contextual item such as `Auto-copy in Codex`.
 
+The user-provided `roboCopy.svg` is the canonical visual asset. The release build generates a full macOS `.icns` file from that source for the application bundle. The menu bar uses a separate monochrome, transparent, stroke-only derivative of the same mark, rendered as a template image so macOS can adapt it to light and dark menu bars. Generated raster sizes and `.icns` output are build artifacts; only the source SVG assets are committed.
+
 The menu contains:
 
 - A global enabled toggle.
