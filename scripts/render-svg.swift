@@ -2,11 +2,22 @@
 import AppKit
 import Foundation
 
-guard CommandLine.arguments.count == 4,
-      let pixels = Int(CommandLine.arguments[3]),
-      pixels > 0 else {
-    fputs("usage: render-svg.swift input.svg output.png pixels\n", stderr)
+guard (CommandLine.arguments.count == 4 || CommandLine.arguments.count == 5),
+      let pixelWidth = Int(CommandLine.arguments[3]),
+      pixelWidth > 0 else {
+    fputs("usage: render-svg.swift input.svg output.png pixel-width [pixel-height]\n", stderr)
     exit(64)
+}
+
+let pixelHeight: Int
+if CommandLine.arguments.count == 5 {
+    guard let height = Int(CommandLine.arguments[4]), height > 0 else {
+        fputs("pixel-height must be a positive integer\n", stderr)
+        exit(64)
+    }
+    pixelHeight = height
+} else {
+    pixelHeight = pixelWidth
 }
 
 let input = CommandLine.arguments[1]
@@ -17,8 +28,8 @@ guard let image = NSImage(contentsOfFile: input) else {
 }
 guard let bitmap = NSBitmapImageRep(
     bitmapDataPlanes: nil,
-    pixelsWide: pixels,
-    pixelsHigh: pixels,
+    pixelsWide: pixelWidth,
+    pixelsHigh: pixelHeight,
     bitsPerSample: 8,
     samplesPerPixel: 4,
     hasAlpha: true,
@@ -39,9 +50,9 @@ guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
 }
 NSGraphicsContext.current = context
 NSColor.clear.setFill()
-NSRect(x: 0, y: 0, width: pixels, height: pixels).fill()
+NSRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight).fill()
 image.draw(
-    in: NSRect(x: 0, y: 0, width: pixels, height: pixels),
+    in: NSRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight),
     from: NSRect(origin: .zero, size: image.size),
     operation: .sourceOver,
     fraction: 1

@@ -3,7 +3,7 @@ import RoboCopyCore
 import ServiceManagement
 
 final class MenuController: NSObject, NSMenuDelegate {
-    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    private let statusItem = NSStatusBar.system.statusItem(withLength: 27)
     private let defaults: UserDefaults
     private let allowlist: AllowlistStore
     private let tracker: FrontmostApplicationTracker
@@ -47,7 +47,7 @@ final class MenuController: NSObject, NSMenuDelegate {
                 accessibilityDescription: "RoboCopy"
             )
         }
-        image.size = NSSize(width: 18, height: 18)
+        image.size = NSSize(width: 23, height: 18)
         image.isTemplate = true
         image.accessibilityDescription = "RoboCopy"
         return image

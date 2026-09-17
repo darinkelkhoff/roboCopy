@@ -76,6 +76,7 @@ iconutil -c icns "$ICONSET" -o "$STAGING_CONTENTS/Resources/RoboCopy.icns"
 swift scripts/render-svg.swift \
     Resources/MenuBarIconTemplate.svg \
     "$STAGING_CONTENTS/Resources/MenuBarIconTemplate.png" \
+    46 \
     36
 
 plutil -lint "$STAGING_CONTENTS/Info.plist"

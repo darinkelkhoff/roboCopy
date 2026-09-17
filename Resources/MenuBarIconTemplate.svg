@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <g fill="none" stroke="#000" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="198" cy="326" r="137"/>
-    <circle cx="310" cy="190" r="151"/>
-    <path d="M132 350 C172 339 215 339 258 350"/>
-    <path d="M238 190 C284 178 334 178 382 190"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.6 22.4">
+  <defs>
+    <g id="face" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="10" r="8.35" stroke-width="1.7"/>
+      <path
+        fill="#000"
+        fill-rule="evenodd"
+        stroke="none"
+        d="M1.65 10 A8.35 8.35 0 0 1 18.35 10 H1.65 Z
+           M4.3 5.7 Q10 4.9 15.7 5.7
+           C16.3 5.8 16.3 7.25 15.7 7.5
+           Q10 6.7 4.3 7.5
+           C3.7 7.25 3.7 5.8 4.3 5.7 Z"
+      />
+      <path d="M6.6 14.15 Q10 13.45 13.4 14.15" stroke-width="1.45"/>
+    </g>
+    <mask id="rear-visible" maskUnits="userSpaceOnUse" x="0" y="0" width="28.6" height="22.4">
+      <rect width="28.6" height="22.4" fill="#fff"/>
+      <circle cx="18.475" cy="10" r="8.35" fill="#000"/>
+    </mask>
+  </defs>
+  <g mask="url(#rear-visible)">
+    <use href="#face" transform="translate(0.125 2.4)"/>
   </g>
+  <use href="#face" transform="translate(8.475 0)"/>
 </svg>
