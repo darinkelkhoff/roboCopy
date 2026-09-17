@@ -24,11 +24,11 @@ public final class CopyDispatcher {
     }
 
     public func dispatch(to target: AppIdentity) {
-        schedule(0.04) {
-            guard self.isEnabled(), self.isTrusted() else { return }
-            guard self.frontmost()?.bundleIdentifier == target.bundleIdentifier else { return }
+        schedule(0.04) { [isEnabled, isTrusted, frontmost, postCommandC] in
+            guard isEnabled(), isTrusted() else { return }
+            guard frontmost()?.bundleIdentifier == target.bundleIdentifier else { return }
 
-            self.postCommandC()
+            postCommandC()
         }
     }
 }
