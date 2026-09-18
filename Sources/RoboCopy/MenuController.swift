@@ -3,6 +3,8 @@ import RoboCopyCore
 import ServiceManagement
 
 final class MenuController: NSObject, NSMenuDelegate {
+    private static let repositoryURL = URL(string: "https://github.com/darinkelkhoff/roboCopy")!
+
     private let statusItem = NSStatusBar.system.statusItem(withLength: 27)
     private let defaults: UserDefaults
     private let allowlist: AllowlistStore
@@ -172,6 +174,9 @@ final class MenuController: NSObject, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
+        menu.addItem(item("RoboCopy Help...", action: #selector(showHelp)))
+        menu.addItem(item("About RoboCopy", action: #selector(showAbout)))
+        menu.addItem(.separator())
         menu.addItem(item("Quit RoboCopy", action: #selector(quit)))
     }
 
@@ -223,6 +228,67 @@ final class MenuController: NSObject, NSMenuDelegate {
 
     @objc private func openLaunchAtLoginSettings() {
         launchAtLogin.openSettings()
+    }
+
+    @objc private func showHelp() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+
+        let alert = NSAlert()
+        alert.icon = NSApplication.shared.applicationIconImage
+        alert.messageText = "RoboCopy Help"
+        alert.informativeText = """
+        RoboCopy adds terminal-style copy-on-select to whichever macOS apps you choose. In allowed apps, selecting text with the mouse automatically puts it on the clipboard without pressing Command-C. Apps you do not allow behave normally.
+
+        Enable RoboCopy for an app:
+
+          1. Focus the app you want to configure.
+          2. Open the RoboCopy menu and enable Auto-copy in <App Name>.
+
+        Copy text with RoboCopy:
+
+          Drag-select, double-click, or triple-click text in an allowed app. When the selection is complete, RoboCopy sends Command-C to copy it to the clipboard.
+
+        RoboCopy must be enabled and have Accessibility access. It never reads or stores selected text.
+        """
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "View on GitHub")
+
+        if alert.runModal() == .alertSecondButtonReturn {
+            NSWorkspace.shared.open(Self.repositoryURL)
+        }
+    }
+
+    @objc private func showAbout() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+
+        let creditText = """
+        Directed by: Darin Kelkhoff
+        Written by: Chatty Codex
+
+        RoboCopy on GitHub
+        """
+        let credits = NSMutableAttributedString(string: creditText)
+        let linkRange = (creditText as NSString).range(of: "RoboCopy on GitHub")
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        credits.addAttribute(
+            .paragraphStyle,
+            value: paragraphStyle,
+            range: NSRange(location: 0, length: credits.length)
+        )
+        credits.addAttributes(
+            [
+                .link: Self.repositoryURL,
+                .foregroundColor: NSColor.linkColor,
+            ],
+            range: linkRange
+        )
+
+        NSApplication.shared.orderFrontStandardAboutPanel(
+            options: [
+                .credits: credits,
+            ]
+        )
     }
 
     @objc private func quit() {
