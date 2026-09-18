@@ -5,7 +5,7 @@ RoboCopy adds iTerm-style copy-on-mouse-select behavior to explicitly allowed ma
 ## Requirements
 
 - macOS 14 or later
-- Xcode 15.3 or later, or equivalent Xcode Command Line Tools
+- To build from source:  Xcode 15.3 or later, or equivalent Xcode Command Line Tools
 
 ## Build
 
