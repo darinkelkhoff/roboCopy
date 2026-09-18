@@ -1,6 +1,6 @@
 # RoboCopy
 
-RoboCopy adds iTerm-style copy-on-mouse-select behavior to explicitly allowed macOS applications.
+RoboCopy adds terminal-style copy-on-select to whatever macOS apps you want.
 
 <p align="center">
   <img src="Resources/roboCopy.svg" width="160" alt="RoboCopy app icon">
