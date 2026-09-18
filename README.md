@@ -2,7 +2,9 @@
 
 RoboCopy adds iTerm-style copy-on-mouse-select behavior to explicitly allowed macOS applications.
 
-![RoboCopy menu showing allowed apps](Resources/roboCopyMenu.png)
+<p align="center">
+  <img src="Resources/roboCopy.svg" width="160" alt="RoboCopy app icon">
+</p>
 
 ## Download
 
@@ -49,6 +51,8 @@ The release script uses the `notarytool` keychain profile by default. Override i
 2. Focus the application you want to configure.
 3. Open RoboCopy's menu bar menu and enable `Auto-copy in <App Name>`.
 4. Drag-select, double-click, or triple-click text in that application.
+
+![RoboCopy menu showing allowed apps](Resources/roboCopyMenu.png)
 
 Single clicks and selections in applications outside the allowlist are ignored.
 
