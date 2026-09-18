@@ -2,6 +2,14 @@
 
 RoboCopy adds iTerm-style copy-on-mouse-select behavior to explicitly allowed macOS applications.
 
+![RoboCopy menu showing allowed apps](Resources/roboCopyMenu.png)
+
+## Download
+
+[Download RoboCopy for Apple silicon](https://github.com/darinkelkhoff/roboCopy/releases/latest/download/RoboCopy-macos-arm64.zip) (macOS 14 or later)
+
+Unzip the archive, move `RoboCopy.app` to `/Applications`, launch it, and grant Accessibility access when prompted.
+
 ## Requirements
 
 - macOS 14 or later
@@ -26,6 +34,14 @@ ROBOCOPY_SIGNING_IDENTITY="Apple Development: Your Name (TEAMID)" scripts/build-
 ```
 
 Set `ROBOCOPY_SIGNING_IDENTITY=-` when an explicit ad-hoc build is desired. Developer ID identities may also be selected explicitly, but this local script does not notarize the result.
+
+Create a Developer ID-signed and notarized release archive with:
+
+```bash
+scripts/release-macos.sh
+```
+
+The release script uses the `notarytool` keychain profile by default. Override it with `ROBOCOPY_NOTARY_PROFILE`.
 
 ## Use
 

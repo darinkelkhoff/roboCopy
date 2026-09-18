@@ -108,7 +108,11 @@ swift scripts/render-svg.swift \
 
 plutil -lint "$STAGING_CONTENTS/Info.plist"
 echo "Signing RoboCopy with: $SIGNING_IDENTITY"
-codesign --force --sign "$SIGNING_IDENTITY" "$STAGING_APP"
+CODESIGN_OPTIONS=(--force --sign "$SIGNING_IDENTITY")
+if [[ "$SIGNING_IDENTITY" == "Developer ID Application:"* ]]; then
+    CODESIGN_OPTIONS+=(--options runtime --timestamp)
+fi
+codesign "${CODESIGN_OPTIONS[@]}" "$STAGING_APP"
 codesign --verify --deep --strict --verbose=2 "$STAGING_APP"
 
 if [[ -e "$APP" ]]; then
