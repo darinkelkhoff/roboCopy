@@ -44,3 +44,7 @@ RoboCopy observes global left-mouse gestures and the active application's identi
 swift test
 swift build
 ```
+
+## License
+
+RoboCopy is available under the [MIT License](LICENSE).
